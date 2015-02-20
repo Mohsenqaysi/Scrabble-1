@@ -1,10 +1,9 @@
 public class Board
 {
-	private static final int lengthOfBoard = 15;
+	private static final int LENGTH_OF_BOARD = 15;
 	private Cell[][] board;
 
 	private class Cell
-	// The class cannot be extended.
 	{
 		public char letter;
 		public boolean wordOrLetter;
@@ -18,22 +17,30 @@ public class Board
 	public Board()
 	{
 		reset();
+		/*
+		 *  The layout of Scrabble board comes from:
+		 *  http://upload.wikimedia.org/wikipedia/commons/c/c2/Blank_Scrabble_board_with_coordinates.svg
+		 */
 	}
 
 	public void reset()
 	{
-		board = new Cell[lengthOfBoard][lengthOfBoard];
-		for ( int i = 0; i < lengthOfBoard; i++ )
+		board = new Cell[LENGTH_OF_BOARD][LENGTH_OF_BOARD];
+		for ( int i = 0; i < LENGTH_OF_BOARD; i++ )
 		{
-			for ( int j = 0; j < lengthOfBoard; j++ )
+			for ( int j = 0; j < LENGTH_OF_BOARD; j++ )
 			{
 				board[i][j] = new Cell();
 			}
 		}
 		
-		for ( int i = 0; i <= lengthOfBoard / 2; i++ )
+		/*
+		 * The whole board is divided into 4 sub-board.
+		 * The code below is to assign values of double/triple word/letter to specific cells.
+		 */
+		for ( int i = 0; i <= LENGTH_OF_BOARD / 2; i++ )
 		{
-			for ( int j = 0; j <= lengthOfBoard / 2; j++ )
+			for ( int j = 0; j <= LENGTH_OF_BOARD / 2; j++ )
 			{
 				if ( (i == j) && (((i >= 1) && (i <= 4)) || (i == 7)) )
 				// 2x WS.
@@ -68,7 +75,7 @@ public class Board
 							}
 							else
 							{
-								set(i, j, true, 1); /////////////////////////
+								set(i, j, true, 1);
 							}
 						}
 					}
@@ -77,85 +84,218 @@ public class Board
 		}
 	}
 	
-	private void setOneCell(int i, int j, boolean wordOrLetter, int times)
-	{
-		board[i][j].letter = ' ';
-		board[i][j].wordOrLetter = wordOrLetter;
-		board[i][j].times = times;
-	}
-	
 	private void set(int i, int j, boolean wordOrLetter, int times)
 	// According to the position of one cell, set the same value for all four symmetric positions on the board.
 	{
 		setOneCell(i, j, wordOrLetter, times);
-		setOneCell(lengthOfBoard - 1 - i, j, wordOrLetter, times);
-		setOneCell(i, lengthOfBoard - 1 - j, wordOrLetter, times);
-		setOneCell(lengthOfBoard - 1 - i, lengthOfBoard - 1 - j, wordOrLetter, times);
+		setOneCell(LENGTH_OF_BOARD - 1 - i, j, wordOrLetter, times);
+		setOneCell(i, LENGTH_OF_BOARD - 1 - j, wordOrLetter, times);
+		setOneCell(LENGTH_OF_BOARD - 1 - i, LENGTH_OF_BOARD - 1 - j, wordOrLetter, times);
 	}
 	
-	public String getBoard()
+	private void setOneCell(int i, int j, boolean wordOrLetter, int times)
 	{
-		String currentBoard = new String();
-		int i;
-		currentBoard += "     "; // Five spaces.
-		for ( i = 0; i < lengthOfBoard; i++ )
+		board[i][j].letter = ' '; // Set to blank at the first time.
+		board[i][j].wordOrLetter = wordOrLetter;
+		board[i][j].times = times;
+	}
+
+	public void putNewWord(String startingPosition, String direction, String word, Frame frame)
+	/*
+	 * startingPosition is a string with such format: <Letter (A/a - O/o)><Index (1 - 15)>, e.g: "A4", "F16", "O2";
+	 * direction contains two possible values: A/a - across and D/d - down;
+	 * word is a word with length 1 - 7.
+	 * Here we assume that user's input is free from any semantic errors all the time.
+	 * Precondition: isPlacementLegal(word) is true.
+	 */
+	{
+		word = word.toUpperCase(); // Convert word to upper case.
+		int columnIndex = startingPosition.toUpperCase().charAt(0) - 'A';
+		// Convert an upper case letter to index.
+		int  rowIndex= startingPosition.charAt(1) - '0';
+		
+		if ( isPlacementLegal(rowIndex, columnIndex, direction, word, frame) )
 		{
-			currentBoard += ((char) (i + 'A'));
-			currentBoard += ' ';
-		}
-		currentBoard += "\n   *********************************\n";
-		for ( i = 0; i < lengthOfBoard; i++ )
-		{
-			currentBoard += String.format("%2d", i + 1);
-			currentBoard += " * ";
-			for ( int j = 0; j < lengthOfBoard; j++ )
+			// PUT HERE!
+			if ( direction.equalsIgnoreCase("A") )
 			{
-				currentBoard += board[i][j].letter; //////////////////////////////
-				currentBoard += ' ';
+				for ( int i = columnIndex; i < columnIndex + word.length(); i++ )
+				{
+					board[rowIndex][i].letter = word.charAt(i - columnIndex);
+				}
 			}
-			currentBoard += ("* " + (Integer.toString(i + 1)) + '\n');
+			else
+			{
+				for ( int i = rowIndex; i < rowIndex + word.length(); i++ )
+				{
+					board[i][columnIndex].letter = word.charAt(i - rowIndex);
+				}
+			}
+			frame.remove(word);
 		}
-		currentBoard += "   *********************************\n";
-		currentBoard += "     ";
-		for ( i = 0; i < lengthOfBoard; i++ )
+		else
 		{
-			currentBoard += ((char) (i + 'A'));
-			currentBoard += ' ';
+			System.out.println("Cannot put the word on the board.");
 		}
-		return currentBoard;
 	}
 	
+	private boolean isPlacementLegal(int row, int column, String direction, String word, Frame frame)
+	{
+		final int CENTRE_INDEX = LENGTH_OF_BOARD / 2;
+		boolean flag = true; // Assume that it is legal.
+		String wordBackUp = word; // Create a copy of word, used in isAvailable() method.
+		
+		if ( board[CENTRE_INDEX][CENTRE_INDEX].letter == ' ' )
+		// If the word is the first one, then it should be put at the centre of the board.
+		{
+			if ( ((row == CENTRE_INDEX) && (column <= CENTRE_INDEX) && (column + word.length() >= CENTRE_INDEX)) ||
+				 ((column == CENTRE_INDEX) && (row <= CENTRE_INDEX) && (row + word.length() >= CENTRE_INDEX)) )
+			{
+				;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		if ( direction.equalsIgnoreCase("A") ) // Put the word horizontally.
+		{
+			int endingColumnIndex = column + word.length();
+			if ( endingColumnIndex >= LENGTH_OF_BOARD )
+			// Check whether the placement is within the bounds of the board.
+			{
+				System.out.println("A");
+				flag = false;
+			}
+			else
+			{
+				for ( int i = column; i <= endingColumnIndex; i++ )
+				{
+					if ( board[row][i].letter != ' ' )
+					// If it is already occupied.
+					{
+						if ( board[row][i].letter != word.charAt(i - column) )
+						// Wrong overlay.
+						{
+							System.out.println("B");
+							flag = false;
+							break;
+						}
+						else
+						{
+							wordBackUp = wordBackUp.substring(0, i - column) + wordBackUp.substring(i - column + 1);
+							System.out.println(wordBackUp);
+							// Remove the overlaid letter from wordBackUp.
+						}
+					}
+					/*
+					 *  If the to-be-placed word does not use any letter already put on the board,
+					 *  do something.
+					 */
+				}
+			}
+		}
+		else
+		{
+			if ( direction.equalsIgnoreCase("D") ) // Put the word vertically.
+			{
+				int endingRowIndex = row + word.length();
+				if ( endingRowIndex >= LENGTH_OF_BOARD )
+				// Check whether the placement is within the bounds of the board.
+				{
+					System.out.println("C");
+					flag = false;
+				}
+				else
+				{
+					for ( int i = row; i <= row + word.length(); i++ )
+					{
+						if ( board[i][column].letter != ' ' )
+						// If it is already occupied.
+						{
+							if ( board[i][column].letter !=  word.charAt(i - row) )
+							{
+								flag = false;
+								System.out.println("D");
+								break;
+							}
+							else
+							{
+								wordBackUp = wordBackUp.substring(0, i - row) + wordBackUp.substring(i - row + 1);
+								// Remove the overlaid letter from wordBackUp.
+							}
+						}
+					}
+				}
+			}
+		}
+		if ( !frame.isAvailable(wordBackUp) )
+		{
+			flag = false;
+			System.out.println("E");
+		}
+		else
+		{
+			if ( direction.equalsIgnoreCase("A") )
+			{
+				
+			}
+			else
+			{
+				if ( direction.equalsIgnoreCase("D") )
+				{
+					
+				}
+			}
+		}
+		return flag;
+	}
+
 	private boolean isInDictionary(String word)
 	// Leave it blank temporarily at this stage.
 	{
 		return true;
 	}
 	
-	private boolean isPlacementLegal(String startingPosition, String direction, int lengthOfWord)
+	public String getBoard()
 	{
-		return true;
-	}
-	
-	public void putNewWord(String startingPosition, String direction, String word)
-	/*
-	 * startingPosition is a string with such format: <Letter (A/a - O/o)><Index (1 - 15)>, e.g: "A4", "F16", "O2";
-	 * direction contains two possible values: A/a - across and D/d - down;
-	 * word is a word with length 1 - 7.
-	 * Here we assume that user's input is free from any semantic errors all the time.
-	 */
-	{
-		if ( isInDictionary(word) && isPlacementLegal(startingPosition, direction, word.length()) )
+		String currentBoard = new String();
+		int i;
+		currentBoard += "     "; // Five spaces before the sequence.
+		for ( i = 0; i < LENGTH_OF_BOARD; i++ )
+		// A sequence of A - O.
 		{
-			
+			currentBoard += ((char) (i + 'A'));
+			currentBoard += ' ';
 		}
-		else
+		currentBoard += "\n   *********************************\n"; // Top border.
+		for ( i = 0; i < LENGTH_OF_BOARD; i++ )
 		{
-			
+			currentBoard += String.format("%02d", i + 1);
+			// Make numbers beside the left border align right.
+			currentBoard += " * "; // Left border.
+			for ( int j = 0; j < LENGTH_OF_BOARD; j++ )
+			{
+				currentBoard += board[i][j].letter;
+				currentBoard += ' ';
+			}
+			currentBoard += ("* " + String.format("%02d", i + 1) + '\n'); // Right border.
+			// Make numbers beside the right border align left.
 		}
+		currentBoard += "   *********************************\n"; // Bottom border.
+		currentBoard += "     "; // Five spaces before the sequence.
+		for ( i = 0; i < LENGTH_OF_BOARD; i++ )
+		// A sequence of A - O.
+		{
+			currentBoard += ((char) (i + 'A'));
+			currentBoard += ' ';
+		}
+		return currentBoard;
 	}
-	
+
 	public String toString()
-	// Stores the current tile positions.
+	// Output the current tile positions.
 	{
 		return getBoard();
 	}
