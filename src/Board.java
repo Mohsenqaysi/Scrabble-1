@@ -116,16 +116,18 @@ public class Board
 	/**
 	 * The method is to try to put a new word on the board.
 	 * Here we assume that user's input is free from any semantic errors all the time.
+	 * 
 	 * @param startingPosition is a string with such format: [Letter (A/a - O/o)][Number (1 - 15)],
-	 * where letter means column index and number means row index, e.g: "A4", "F15", "O2".
+	 * where letter means column index and number means row index; e.g: "A4", "F15", "O2".
 	 * @param direction holds two possible values: A/a - across (horizontally) or D/d - down (vertically).
 	 * @param word is a string inputed by user with length 1 - 15.
+	 * @param frame is a place storing letters that can be used currently.
 	 */
 	public void putNewWord(String startingPosition, String direction, String word, Frame frame)
 	{
 		int column = startingPosition.toUpperCase().charAt(0) - 'A';
 		// Convert an upper case letter to index.
-		int row = startingPosition.charAt(1) - '0' - 1;
+		int row = Integer.parseInt(startingPosition.substring(1)) - 1;
 		// Convert index on the board to one in the array by subtracting 1.
 		word = word.toUpperCase(); // Convert word to upper case one.
 		
@@ -160,6 +162,7 @@ public class Board
 	
 	/**
 	 * The method checks if the current word can be placed on the board legally.
+	 * 
 	 * @return if it can be, remove relative letters from the frame and return true;
 	 * if it cannot be placed, return false.
 	 */
@@ -167,9 +170,8 @@ public class Board
 	{
 		String tilesShouldInFrame = word;
 		/*
-		 * Create a copy of word, used in isAvailable() method at last.
 		 * tilesShouldInFrame should contain all letters used in this move (excluding some on the board already),
-		 * which needs to appear in the frame currently.
+		 * which needs to appear in the frame currently and will be used in isAvailable() method.
 		 */
 		int timesOfSharingLetters = 0;
 		// The variable shows times of sharing letters with previous words on the board.
@@ -179,7 +181,7 @@ public class Board
 		// If it is the first placement.
 		{
 			isFirstPlacement = true;
-			if ( !isAtStarSquare(row, column, word.length()) )
+			if ( !isAtStarSquare(row, column, direction, word.length()) )
 			// If the first placement is not on the star square.
 			{
 				System.out.println("[ERROR] The first word should be placed on the star square at the centre of the board.");
@@ -238,7 +240,7 @@ public class Board
 						if ( board[i + row][column].letter ==  word.charAt(i) )
 						// Overlay correctly.
 						{
-							int tempIndex = tilesShouldInFrame.indexOf((word.charAt(i)));
+							int tempIndex = tilesShouldInFrame.indexOf(word.charAt(i));
 							// Get the index of the letter needed to be removed in tilesShouldInFrame.
 							tilesShouldInFrame = tilesShouldInFrame.substring(0, tempIndex) + tilesShouldInFrame.substring(tempIndex + 1);
 							// Remove the overlaid letter from tileShouldInFrame.
@@ -280,10 +282,12 @@ public class Board
 		return true;
 	}
 
-	private boolean isAtStarSquare(int row, int column, int length)
+	private boolean isAtStarSquare(int row, int column, String direction, int length)
 	{
-		if ( ((row == CENTRE_INDEX) && (column <= CENTRE_INDEX) && (column + length - 1 >= CENTRE_INDEX)) ||
-			 ((column == CENTRE_INDEX) && (row <= CENTRE_INDEX) && (row + length - 1 >= CENTRE_INDEX)) )
+		if ( (direction.equalsIgnoreCase("A") && (row == CENTRE_INDEX) && (column <= CENTRE_INDEX) &&
+			 (column + length - 1 >= CENTRE_INDEX)) ||
+			 (direction.equalsIgnoreCase("D") && (column == CENTRE_INDEX) && (row <= CENTRE_INDEX) &&
+			 (row + length - 1 >= CENTRE_INDEX)) )
 		{
 			return true;
 		}
@@ -315,7 +319,7 @@ public class Board
 		for ( i = 0; i < LENGTH_OF_BOARD; i++ )
 		// A sequence of A - O.
 		{
-			currentBoard.append(((char) (i + 'A')));
+			currentBoard.append((char) (i + 'A'));
 			currentBoard.append(' ');
 		}
 		currentBoard.append("\n   _________________________________\n"); // Top border.
@@ -335,7 +339,7 @@ public class Board
 		for ( i = 0; i < LENGTH_OF_BOARD; i++ )
 		// A sequence of A - O.
 		{
-			currentBoard.append(((char) (i + 'A')));
+			currentBoard.append((char) (i + 'A'));
 			currentBoard.append(' ');
 		}
 		return currentBoard.toString();
