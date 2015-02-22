@@ -121,7 +121,7 @@ public class Board
 	 * where letter means column index and number means row index; e.g: "A4", "F15", "O2".
 	 * @param direction holds two possible values: A/a - across (horizontally) or D/d - down (vertically).
 	 * @param word is a string inputed by user with length 1 - 15.
-	 * @param frame is a place storing letters that can be used currently.
+	 * @param frame is a rack storing letters that can be used currently.
 	 */
 	public void putNewWord(String startingPosition, String direction, String word, Frame frame)
 	{
@@ -200,7 +200,7 @@ public class Board
 			return false;
 		}
 
-		// Further checking on whether the placement will arise a conflict with previous tiles on the board.
+		// Further checking on whether a conflict with previous tiles on the board will arise.
 		if ( direction.equalsIgnoreCase("A") )
 		// Put the word horizontally.
 		{
