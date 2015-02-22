@@ -1,3 +1,15 @@
+/**
+ * Implement a class called Board that:
+ * 1. Allows the board to be reset;
+ * 2. Stores the current tile positions;
+ * 3. Stores the square values (e.g. triple word score);
+ * 4. Allows a word placement to be checked to determine if it is legal or not;
+ * 5. Allows a word to be placed on the board;
+ * 6. Displays the current board using ASCII characters on the console.
+ * 
+ * @author Yongzhen Ren
+ */
+
 public class Board
 {
 	private static final int LENGTH_OF_BOARD = 15;
@@ -6,20 +18,21 @@ public class Board
 
 	class Cell
 	{
-		public char letter;
+		public char letter = ' '; // Set to blank before a tile is put.
 		public boolean wordOrLetter;
 		/*
 		 * true: double-word or triple-word; false: double-letter or triple-letter.
-		 * When times is equal to 1, this option will be ignored.
+		 * When times is equal to 1, this option will be IGNORED.
 		 */
-		public int times; // times can only be 1, 2, or 3.
+		public int times;
+		// The variable can only contain 1, 2, or 3.
 	}
 
 	public Board()
 	{
 		reset();
 		/*
-		 *  The layout of Scrabble board comes from:
+		 *  The layout of Scrabble board is available in ./Scrabble/doc/ directory and comes from:
 		 *  http://upload.wikimedia.org/wikipedia/commons/c/c2/Blank_Scrabble_board_with_coordinates.svg
 		 */
 	}
@@ -33,9 +46,9 @@ public class Board
 			{
 				board[i][j] = new Cell();
 			}
-		} // Initialise Cell class.
+		}
 		/*
-		 * The whole board is divided into 4 sub-board.
+		 * The whole board is divided into 4 sub-squares evenly.
 		 * The code below is to assign values of double/triple word/letter to specific cells.
 		 */
 		for ( int i = 0; i <= CENTRE_INDEX; i++ )
@@ -76,6 +89,7 @@ public class Board
 							else
 							{
 								set(i, j, true, 1);
+								// Once again, the value true here does not matter at all.
 							}
 						}
 					}
@@ -95,20 +109,19 @@ public class Board
 	
 	private void setOneCell(int i, int j, boolean wordOrLetter, int times)
 	{
-		board[i][j].letter = ' '; // Set to blank before a tile is put.
 		board[i][j].wordOrLetter = wordOrLetter;
 		board[i][j].times = times;
 	}
 
-	public void putNewWord(String startingPosition, String direction, String word, Frame frame)
-	/*
-	 * startingPosition is a string with such format: <Letter (A/a - O/o)><Number (1 - 15)>,
-	 * where letter means column index. and number means row index, e.g: "A4", "F15", "O2";
-	 * direction contains two possible values: A/a - across and D/d - down;
-	 * word is a word with length 1 - 15.
+	/**
+	 * The method is to try to put a new word on the board.
 	 * Here we assume that user's input is free from any semantic errors all the time.
-	 * Precondition: isPlacementLegal(word) is true.
+	 * @param startingPosition is a string with such format: [Letter (A/a - O/o)][Number (1 - 15)],
+	 * where letter means column index and number means row index, e.g: "A4", "F15", "O2".
+	 * @param direction holds two possible values: A/a - across (horizontally) or D/d - down (vertically).
+	 * @param word is a string inputed by user with length 1 - 15.
 	 */
+	public void putNewWord(String startingPosition, String direction, String word, Frame frame)
 	{
 		int column = startingPosition.toUpperCase().charAt(0) - 'A';
 		// Convert an upper case letter to index.
@@ -119,151 +132,148 @@ public class Board
 		if ( isPlacementLegal(row, column, direction, word, frame) )
 		{
 			if ( direction.equalsIgnoreCase("A") )
+			// Put the word horizontally.
 			{
-				for ( int i = column; i < column + word.length(); i++ )
+				for ( int i = 0; i < word.length(); i++ )
 				{
-					board[row][i].letter = word.charAt(i - column);
+					board[row][i + column].letter = word.charAt(i);
 				}
 			}
 			else
 			{
-				for ( int i = row; i < row + word.length(); i++ )
+				if ( direction.equalsIgnoreCase("D") )
+				// Put the word vertically.
 				{
-					board[i][column].letter = word.charAt(i - row);
+					for ( int i = 0; i < word.length(); i++ )
+					{
+						board[i + row][column].letter = word.charAt(i);
+					}
 				}
 			}
 		}
 		else
 		{
-			System.out.println("Cannot put the word on the board.");
+			System.out.println("[ERROR] Cannot put the word on the board.");
+			System.out.println("Please try again.");
 		}
 	}
 	
-	/*
-	 * The function checks if the current word can be placed on the board legally.
-	 * If it can be, remove relative letters from the frame and return true;
-	 * if it cannot, return false.
+	/**
+	 * The method checks if the current word can be placed on the board legally.
+	 * @return if it can be, remove relative letters from the frame and return true;
+	 * if it cannot be placed, return false.
 	 */
 	private boolean isPlacementLegal(int row, int column, String direction, String word, Frame frame)
 	{
 		String tilesShouldInFrame = word;
 		/*
-		 * Create a copy of word, used in isAvailable() method.
-		 * tilesShouldInFrame contains all letters used in this move (excluding some on the board already),
-		 * which should appear in the frame currently.
+		 * Create a copy of word, used in isAvailable() method at last.
+		 * tilesShouldInFrame should contain all letters used in this move (excluding some on the board already),
+		 * which needs to appear in the frame currently.
 		 */
 		int timesOfSharingLetters = 0;
 		// The variable shows times of sharing letters with previous words on the board.
-		boolean isFirstWord; // The variable records if it is the first word.
+		boolean isFirstPlacement; // The variable records if it is the first placement.
 
 		if ( board[CENTRE_INDEX][CENTRE_INDEX].letter == ' ' )
 		// If it is the first placement.
 		{
-			isFirstWord = true;
+			isFirstPlacement = true;
 			if ( !isAtStarSquare(row, column, word.length()) )
+			// If the first placement is not on the star square.
 			{
-				System.out.println("[ERROR] The first word should be placed on the star square at the center of the board.");
+				System.out.println("[ERROR] The first word should be placed on the star square at the centre of the board.");
 				return false;
 			}
 		}
 		else
 		{
-			isFirstWord = false;
-		}
-
-		if ( !isInDictionary(word) )
-		{
-			System.out.println("[ERROR] The word inputted cannot be found in the dictionary.");
-			return false;
+			isFirstPlacement = false;
 		}
 
 		if ( !isWithinBounds(row, column, direction, word.length()) )
+		// If the placement is out of the bounds of the board.
 		{
-			System.out.println("[ERROR] The placement is out of the bound of the board.");
+			System.out.println("[ERROR] The placement is out of the bounds of the board.");
 			return false;
 		}
 
-		if ( direction.equalsIgnoreCase("A") ) // Put the word horizontally.
+		// Further checking on whether the placement will arise a conflict with previous tiles on the board.
+		if ( direction.equalsIgnoreCase("A") )
+		// Put the word horizontally.
 		{
 			for ( int i = 0; i < word.length(); i++ )
 			{
 				if ( board[row][i + column].letter != ' ' )
 				// If it is already occupied.
 				{
-					if ( board[row][i + column].letter != word.charAt(i) )
-					// Overlay incorrectly.
+					if ( board[row][i + column].letter == word.charAt(i) )
+					// Overlay correctly.
 					{
-						System.out.println("[ERROR] The current placement overlays the previous one on the board incorrectly.");
-						return false;
-					}
-					else
-					{
-						int tempIndex = tilesShouldInFrame.indexOf((word.charAt(i)));
+						int tempIndex = tilesShouldInFrame.indexOf(word.charAt(i));
+						// Get the index of the letter needed to be removed in tilesShouldInFrame.
 						tilesShouldInFrame = tilesShouldInFrame.substring(0, tempIndex) + tilesShouldInFrame.substring(tempIndex + 1);
 						// Remove the overlaid letter from tileShouldInFrame.
-						timesOfSharingLetters++; // Overlay correctly.
+						timesOfSharingLetters++; // Record the successful checking.
+					}
+					else
+					// A conflict occurs.
+					{
+						System.out.println("[ERROR] The placement overlays previous ones on the board incorrectly.");
+						return false;
 					}
 				}
 			}
 		}
 		else
 		{
-			if ( direction.equalsIgnoreCase("D") ) // Put the word vertically.
+			if ( direction.equalsIgnoreCase("D") )
+			// Put the word vertically.
 			{
 				for ( int i = 0; i < word.length(); i++ )
 				{
 					if ( board[i + row][column].letter != ' ' )
 					// If it is already occupied.
 					{
-						if ( board[i + row][column].letter !=  word.charAt(i) )
-						{
-							System.out.println("[ERROR] The current placement overlays the previous one on the board incorrectly.");
-							return false;
-						}
-						else
+						if ( board[i + row][column].letter ==  word.charAt(i) )
+						// Overlay correctly.
 						{
 							int tempIndex = tilesShouldInFrame.indexOf((word.charAt(i)));
+							// Get the index of the letter needed to be removed in tilesShouldInFrame.
 							tilesShouldInFrame = tilesShouldInFrame.substring(0, tempIndex) + tilesShouldInFrame.substring(tempIndex + 1);
 							// Remove the overlaid letter from tileShouldInFrame.
-							timesOfSharingLetters++; // Overlay correctly.
+							timesOfSharingLetters++; // Record the successful checking.
+						}
+						else
+						// A conflict occurs.
+						{
+							System.out.println("[ERROR] The placement overlays previous ones on the board incorrectly.");
+							return false;
 						}
 					}
 				}
 			}
 		}
 
-		if ( (timesOfSharingLetters == 0) && !isFirstWord )
+		if ( (timesOfSharingLetters == 0) && !isFirstPlacement )
+		// If current placement does not use any tiles on the board previously and it is not the first move.
 		{
 			System.out.println("[ERROR] The word has to connect with words already on the board.");
 			return false;
 		}
 
 		if ( timesOfSharingLetters == word.length() )
-		// User just inputs the same word in the same position instead of extending it into a new word.
+		// If user just inputs the same word in the same position instead of extending it into a new word.
 		{
-			System.out.printf("%d\n", timesOfSharingLetters);
 			System.out.println("[ERROR] The same word exists in the same position.");
 			return false;
 		}
 
-		if ( !frame.isAvailable(tilesShouldInFrame.toString()) )
+		if ( !frame.isAvailable(tilesShouldInFrame) )
+		// If some letters used in the move are not available in the frame.
 		{
 			System.out.println("[ERROR] Letter inputted does not exist in the frame.");
 			return false;
-		}
-		else
-		{
-			if ( direction.equalsIgnoreCase("A") )
-			{
-				
-			}
-			else
-			{
-				if ( direction.equalsIgnoreCase("D") )
-				{
-					
-				}
-			}
 		}
 
 		frame.remove(tilesShouldInFrame); // Remove these letters in the frame.
@@ -272,8 +282,8 @@ public class Board
 
 	private boolean isAtStarSquare(int row, int column, int length)
 	{
-		if ( ((row == CENTRE_INDEX) && (column <= CENTRE_INDEX) && (column + length >= CENTRE_INDEX)) ||
-			 ((column == CENTRE_INDEX) && (row <= CENTRE_INDEX) && (row + length >= CENTRE_INDEX)) )
+		if ( ((row == CENTRE_INDEX) && (column <= CENTRE_INDEX) && (column + length - 1 >= CENTRE_INDEX)) ||
+			 ((column == CENTRE_INDEX) && (row <= CENTRE_INDEX) && (row + length - 1 >= CENTRE_INDEX)) )
 		{
 			return true;
 		}
@@ -288,7 +298,6 @@ public class Board
 		if ( (direction.equalsIgnoreCase("A") && (column + length - 1 > LENGTH_OF_BOARD)) ||
 			 (direction.equalsIgnoreCase("D") && (row + length - 1 > LENGTH_OF_BOARD)) )
 		// Check whether the placement is within the bounds of the board.
-		//////////////////////////////////////////////////////////////////////////////////
 		{
 			return false;
 		}
@@ -296,12 +305,6 @@ public class Board
 		{
 			return true;
 		}
-	}
-
-	private boolean isInDictionary(String word)
-	// Leave it blank temporarily at this stage.
-	{
-		return true;
 	}
 	
 	public String getBoard()

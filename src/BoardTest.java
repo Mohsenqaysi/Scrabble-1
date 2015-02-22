@@ -16,7 +16,7 @@ public class BoardTest
 		testFrame.refill(testPool);
 		System.out.println(testFrame);
 		
-		testBoard.putNewWord("H8", "D", testInput.next(), testFrame);
+		testBoard.putNewWord("H8", "A", testInput.next(), testFrame);
 		
 		testFrame.refill(testPool);
 		System.out.println(testBoard);
@@ -27,6 +27,5 @@ public class BoardTest
 		System.out.println(testBoard);
 		
 		testInput.close();
-
 	}
 }
