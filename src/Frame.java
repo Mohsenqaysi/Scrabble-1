@@ -1,7 +1,7 @@
 public class Frame
 {
 	private static final int MAX_TILES = 7;
-	private StringBuffer tiles = new StringBuffer("");
+	private StringBuilder tiles = new StringBuilder("");
 	
 	Frame()
 	{

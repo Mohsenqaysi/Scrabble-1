@@ -6,7 +6,7 @@ public class Pool
 	private static final int TILE_DISTRIBUTION_LENGTH = 27;
 	// First character ('@') is the blank tile, second character is 'A'.
 	
-	private StringBuffer pool = new StringBuffer();
+	private StringBuilder pool = new StringBuilder();
 	
 	Pool()
 	{
