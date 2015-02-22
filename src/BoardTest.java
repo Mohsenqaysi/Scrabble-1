@@ -1,3 +1,7 @@
+/*
+
+author Mohsen Qaysi
+*/
 import java.util.Scanner;
 
 public class BoardTest {
