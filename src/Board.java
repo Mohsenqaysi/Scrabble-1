@@ -299,8 +299,8 @@ public class Board
 
 	private boolean isWithinBounds(int row, int column, String direction, int length)
 	{
-		if ( (direction.equalsIgnoreCase("A") && (column + length - 1 > LENGTH_OF_BOARD)) ||
-			 (direction.equalsIgnoreCase("D") && (row + length - 1 > LENGTH_OF_BOARD)) )
+		if ( (direction.equalsIgnoreCase("A") && (column + length - 1 >= LENGTH_OF_BOARD)) ||
+			 (direction.equalsIgnoreCase("D") && (row + length - 1 >= LENGTH_OF_BOARD)) )
 		// Check whether the placement is within the bounds of the board.
 		{
 			return false;
