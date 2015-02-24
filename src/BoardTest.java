@@ -1,60 +1,60 @@
-/*
-author Mohsen Qaysi
-*/
+/**
+ * @author Mohsen Qaysi
+ * Updated by Yongzhen Ren.
+ */
 
 import java.util.Scanner;
 
-public class BoardTest {
-	public static void main(String[] args) {
-		String postion = "", direction = "", ans = "";
-		boolean empty;
-		Frame frame;
+public class BoardTest
+{
+	public static void main(String[] args)
+	{
+		String postion, direction, ans;
 		Pool testPool = new Pool();
 		Frame testFrame = new Frame();
 		Board testBoard = new Board();
+		Scanner testInput = new Scanner(System.in);
 
-		System.out.println("Pool of size: " + testPool.size());
-		empty = testFrame.isEmpty();
-		System.out.printf("Is frame empty? %b \n", empty); // expect:true
 		System.out.println(testBoard);
 		// Test toString() method. Expect a blank board.
 
-		Scanner testInput = new Scanner(System.in);
-
-		// keep looping until the pool is Empty
-		while (!testPool.isEmpty()) {
-			System.out.println("Pool of size: " + testPool.size());
-
+		// Keep looping until the pool is empty or user inputs "Y" after one turn.
+		while ( !testPool.isEmpty() )
+		{
+			System.out.println("The size of the pool: " + testPool.size());
 			testFrame.refill(testPool);
 			System.out.println("Frame: " + testFrame);
-			// Change the position and direction from the keyboard input.
-			System.out.printf("Give the position in this formate H8 (is Center): ");
+			// Input the position and direction from the keyboard.
+			System.out.printf("Input the position in such format <Letter><Number>: ");
+			// Since there is NO input checking, be careful with input.
 			postion = testInput.next();
-			System.out.printf("Give the direction\nA - horizontally\tD - vertically\n");
-			// Be careful of your input here:
+			System.out.printf("Give the direction\nA/a - horizontally\tD/d - vertically\n");
 			direction = testInput.next();
-			testBoard.putNewWord(postion.toUpperCase(), direction,testInput.next(), testFrame);
+			testBoard.putNewWord(postion, direction, testInput.next(), testFrame);
 			System.out.println(testBoard);
 
-			System.out.printf("Do you want to keep playing: [y/n]: ");
+			System.out.printf("Do you want to keep playing: [Y/N]: ");
 			ans = testInput.next();
-
-			if (ans.equalsIgnoreCase("y")) {
+			if ( ans.equalsIgnoreCase("Y") )
+			{
 				continue;
-			} else if (ans.equalsIgnoreCase("n")) {
-				System.out.println("The game end");
-				break;
-
-			} else {
-				System.out.println("Error an accesptable input ...  game ended");
-				break;
 			}
-
+			else
+			{
+				if ( ans.equalsIgnoreCase("N") )
+				{
+					System.out.println("Game over.");
+					break;
+				}
+				else
+				{
+					System.out.println("[ERROR] An unacceptable input. Terminated.");
+					break;
+				}
+			}
 		}
-		System.out.println("Pool of size: " + testPool.size());
+		System.out.println("The size of the pool: " + testPool.size());
 		System.out.println("Letters left in the Frame: " + testFrame);
-
 		testInput.close();
 	}
-
 }
