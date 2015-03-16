@@ -7,7 +7,7 @@
  * 5. Allows a word to be placed on the board;
  * 6. Displays the current board using ASCII characters on the console.
  * 
- * @author Yongzhen Ren
+ * @author Yongzhen Ren & Dylan Dowling
  */
 
 public class Board
@@ -55,7 +55,7 @@ public class Board
 		{
 			for ( int j = 0; j <= CENTRE_INDEX; j++ )
 			{
-				if ( (i == j) && (((i >= 1) && (i <= 4)) || (i == 7)) )
+				if ( (i == j) && ((i >= 1) && (i <= 4)) )
 				// 2x WS (double word).
 				{
 					set(i, j, true, 2);
@@ -123,7 +123,8 @@ public class Board
 	 * @param word is a string inputed by user with length 1 - 15.
 	 * @param frame is a rack storing letters that can be used currently.
 	 */
-	public void putNewWord(String startingPosition, String direction, String word, Frame frame)
+	
+	public void putNewWord(String startingPosition, String direction, String word, Frame frame, int playerID)
 	{
 		int column = startingPosition.toUpperCase().charAt(0) - 'A';
 		// Convert an upper case letter to index.
@@ -131,32 +132,209 @@ public class Board
 		// Convert index on the board to one in the array by subtracting 1.
 		word = word.toUpperCase(); // Convert word to upper case one.
 		
-		if ( isPlacementLegal(row, column, direction, word, frame) )
-		{
+		
+		if ( isPlacementLegal(row, column, direction, word, frame) ){
 			if ( direction.equalsIgnoreCase("A") )
 			// Put the word horizontally.
 			{
-				for ( int i = 0; i < word.length(); i++ )
-				{
-					board[row][i + column].letter = word.charAt(i);
+				if(playerID%2 != 0){
+					
+					for ( int i = 0; i < word.length(); i++ ){
+						board[row][i + column].letter = word.charAt(i);
+						checkAroundPlacedTilesAndAddScore(i,row, column, word.length(), playerID);
+						Scrabble.player1Score += Scrabble.pool.getValue(word.charAt(i));	
+					}
+	
+				}else{
+					for ( int i = 0; i < word.length(); i++ ){
+						board[row][i + column].letter = word.charAt(i);
+						checkAroundPlacedTilesAndAddScore(i,row, column, word.length(), playerID);
+						Scrabble.player2Score += Scrabble.pool.getValue(word.charAt(i));
+					}
 				}
-			}
-			else
-			{
-				if ( direction.equalsIgnoreCase("D") )
-				// Put the word vertically.
-				{
-					for ( int i = 0; i < word.length(); i++ )
-					{
-						board[i + row][column].letter = word.charAt(i);
+			}else{
+				if ( direction.equalsIgnoreCase("D") ){
+					if(playerID%2 != 0){
+						for ( int i = 0; i < word.length(); i++ ){
+							board[i + row][column].letter = word.charAt(i);
+							checkAroundPlacedTilesAndAddScore(i,row, column, word.length(), playerID);
+							Scrabble.player1Score += Scrabble.pool.getValue(word.charAt(i));
+						}
+					}else{
+						for ( int i = 0; i < word.length(); i++ ){
+							board[i + row][column].letter = word.charAt(i);
+							checkAroundPlacedTilesAndAddScore(i,row, column, word.length(), playerID);
+							Scrabble.player2Score += Scrabble.pool.getValue(word.charAt(i));
+						}
 					}
 				}
 			}
-		}
-		else
-		{
+		}else{
 			System.out.println("[ERROR] Cannot put the word on the board.");
 			System.out.println("Please try again.");
+		}
+	}
+	
+	
+	private void checkAroundPlacedTilesAndAddScore(int i, int row, int column, int wordLength, int playerID) {
+	
+		int tempScoreMult = 0;
+		int tempScoreAdd = 0;
+		
+		// Checking left
+		if(board[row][i + column - 1].letter != ' '){
+			for (int j=1; board[row][i + column - j].letter != ' '; j++){
+					tempScoreAdd += Scrabble.pool.getValue(board[row][i + column - j].letter);
+					
+					// Checking for triple word square, across
+					if(board[row][i + column - j].wordOrLetter && board[row][i + column - j].times == 3){
+						tempScoreMult += 3;
+						board[row][i + column - j].times = 5; // Considered used now so set to variable out of range to break condition
+						//System.out.println("Got here 1");
+					}
+					// Checking for double word, across
+					if(board[row][i + column - j].wordOrLetter && board[row][i + column - j].times == 2){
+						tempScoreMult += 2;
+						board[row][i + column - j].times = 5;
+					}
+					
+					// Checking triple letter, across
+					if(!board[row][i + column - j].wordOrLetter && board[row][i + column - j].times == 3){
+						tempScoreAdd += (Scrabble.pool.getValue(board[row][i + column - j].letter) * 2);
+						board[row][i + column - j].times = 5;
+						//System.out.println("Got here 3");
+					}
+					
+					// Checking double letter, across
+					if(!board[row][i + column - j].wordOrLetter && board[row][i + column - j].times == 2){
+						tempScoreAdd += Scrabble.pool.getValue(board[row][i + column - j].letter);
+						board[row][i + column - j].times = 5;
+						//System.out.println("Got here 4");
+					}
+			}
+		}
+		
+		// Checking right
+		if(board[row][i + column + 1].letter != ' '){
+			for (int j=1; board[row][i + column + wordLength + j].letter != ' '; j++){
+					tempScoreAdd += Scrabble.pool.getValue(board[row][i + column + wordLength + j].letter);
+					
+					// Checking for triple word square, across
+					if(board[row][i + column + wordLength + j].wordOrLetter && board[row][i + column + wordLength + j].times == 3){
+						tempScoreMult += 3;
+						board[row][i + column + wordLength + j].times = 5; // Considered used 
+						//System.out.println("Got here 5");
+					}
+					// Checking for double word, across
+					if(board[row][i + column + wordLength + j].wordOrLetter && board[row][i + column + wordLength + j].times == 2){
+						tempScoreMult += 2;
+						board[row][i + column + wordLength + j].times = 5;
+						//System.out.println("Got here 6");
+					}
+					
+					// Checking triple letter, across
+					if(!board[row][i + column + wordLength + j].wordOrLetter && board[row][i + column  + wordLength + j].times == 3){
+						tempScoreAdd += (Scrabble.pool.getValue(board[row][i + column + wordLength + j].letter) * 2);
+						board[row][i + column + wordLength + j].times = 5;
+						//System.out.println("Got here 7");
+					}
+					
+					// Checking double letter, across
+					if(!board[row][i + column + wordLength + j].wordOrLetter && board[row][i + column + wordLength + j].times == 2){
+						tempScoreAdd += Scrabble.pool.getValue(board[row][i + column + wordLength + j].letter);
+						board[row][i + column + wordLength + j].times = 5;
+						//System.out.println("Got here 8");
+					}
+			}
+		}
+		
+		// Checking above
+		if(board[i + row - 1][column].letter != ' '){
+			for (int j=1; board[i + row - wordLength - j][column].letter != ' '; j++){
+					tempScoreAdd += Scrabble.pool.getValue(board[i + row - wordLength - j][column].letter);
+					
+					// Checking for triple word, down
+					if(board[i + row - wordLength - j][column].wordOrLetter && board[i + row - wordLength - j][column].times == 3){
+						tempScoreMult += 3;
+						board[i + row - wordLength - j][column].times = 5;
+						//System.out.println("Got here 9");
+					}
+					// Checking for double word, down
+					if(board[i + row - wordLength - j][column].wordOrLetter && board[i + row - wordLength - j][column].times == 2){
+						tempScoreMult += 2;
+						board[i + row - wordLength - j][column].times = 5;
+						//System.out.println("Got here 10");
+					}
+					
+					// Checking triple letter, down
+					if(!board[i + row - wordLength - j][column].wordOrLetter && board[i + row - wordLength - j][column].times == 3){
+						tempScoreAdd += (Scrabble.pool.getValue(board[i + row - wordLength - j][column].letter) * 2);
+						board[i + row - wordLength - j][column].times = 5;
+						//System.out.println("Got here 11");
+					}
+							
+					// Checking double letter, down
+					if(!board[i + row - wordLength - j][column].wordOrLetter && board[i + row - wordLength - j][column].times == 2){
+						tempScoreAdd += Scrabble.pool.getValue(board[i + row - wordLength - j][column].letter);
+						board[i + row - wordLength - j][column].times = 5;
+						//System.out.println("Got here 12");
+					}
+			}
+		}
+		
+		// Checking below
+		if(board[i + row + 1][column].letter != ' '){
+			for (int j=1; board[i + row + j][column].letter != ' '; j++){
+					tempScoreAdd += Scrabble.pool.getValue(board[i + row + j][column].letter);
+					
+					// Checking for triple word, down
+					if(board[i + row + j][column].wordOrLetter && board[i + row + j][column].times == 3){
+						tempScoreMult += 3;
+						board[i + row + j][column].times = 5;
+						//System.out.println("Got here 13");
+					}
+					// Checking for double word, down
+					if(board[i + row + j][column].wordOrLetter && board[i + row + j][column].times == 2){
+						tempScoreMult += 2;
+						board[i + row + j][column].times = 5;
+						//System.out.println("Got here 14");
+					}
+					
+					// Checking triple letter, down
+					if(!board[i + row + j][column].wordOrLetter && board[i + row + j][column].times == 3){
+						tempScoreAdd += (Scrabble.pool.getValue(board[i + row + j][column].letter) * 2);
+						board[i + row + j][column].times = 5;
+						//System.out.println("Got here 15");
+					}
+							
+					// Checking double letter, down
+					if(!board[i + row + j][column].wordOrLetter && board[i + row + j][column].times == 2){
+						tempScoreAdd += Scrabble.pool.getValue(board[i + row + j][column].letter);
+						board[i + row + j][column].times = 5;
+						//System.out.println("Got here 16");
+					}
+			}
+		}
+		
+		 // Add score to correct player
+		if(playerID%2 != 0){
+			//Scrabble.player1Score += tempScore;
+			Scrabble.player1Score += tempScoreAdd;
+			
+			if(tempScoreMult < 1){
+				tempScoreMult = 0;
+			}else{
+				Scrabble.player1Score *= tempScoreMult;
+			}
+		}else{
+			//Scrabble.player2Score += tempScore;
+			Scrabble.player2Score += tempScoreAdd;
+			
+			if(tempScoreMult < 1){
+				tempScoreMult = 0;
+			}else{
+				Scrabble.player2Score *= tempScoreMult;
+			}
 		}
 	}
 	
