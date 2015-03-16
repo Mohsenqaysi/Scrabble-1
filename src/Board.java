@@ -5,7 +5,7 @@
  * 3. Stores the square values (e.g. triple word score);
  * 4. Allows a word placement to be checked to determine if it is legal or not;
  * 5. Allows a word to be placed on the board;
- * 6. Displays the current board using ASCII characters on the console.
+ * 6. Displays the current board using ASCII characters on the console..
  * 
  * @author Yongzhen Ren & Dylan Dowling
  */
