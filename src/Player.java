@@ -25,11 +25,6 @@ public class Player
 	{
 		return name;
 	}
-	
-	public void addScore(int increment)
-	{
-		score = score + increment;
-	}
 
 	public int getScore()
 	{
@@ -39,6 +34,11 @@ public class Player
 	public Frame getFrame()
 	{
 		return frame;
+	}
+	
+	public void addScore(int increment)
+	{
+		score = score + increment;
 	}
 	
 	public String toString()

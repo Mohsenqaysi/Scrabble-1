@@ -90,8 +90,12 @@ public class UI
 
 	/**
 	 * The function parses user's input and return the corresponding value.
-	 * @param input 
-	 * @return -1 - Display help information or 
+	 * @param input from keyboard.
+	 * @return -1: Display help information or invalid input.
+	 *          0: Quit the game.
+	 *          1: Pass this turn.
+	 *          2: Exchange tiles.
+	 *          3: Place tiles.
 	 */
 	public int parseInput(String input)
 	{

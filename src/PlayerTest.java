@@ -1,6 +1,7 @@
-public class PlayerTest {
-
-	public static void main (String[] args) {
+public class PlayerTest
+{
+	public static void main(String[] args)
+	{
 		Pool pool = new Pool();
 		Player player1 = new Player(), player2 = new Player();
 		Frame frame;
@@ -24,7 +25,8 @@ public class PlayerTest {
 		numLetters = 7;
 		drawnLetters = pool.drawTiles(numLetters);
 		System.out.printf("Draw %s\n",drawnLetters);
-		for (int i=0; i<numLetters; i++) {
+		for ( int i = 0; i < numLetters; i++ )
+		{
 			value = pool.getValue(drawnLetters.charAt(i));
 			System.out.printf("Value of %s is %d\n",drawnLetters.charAt(i),value);
 		}
@@ -35,7 +37,8 @@ public class PlayerTest {
 		empty = pool.isEmpty();
 		System.out.printf("Pool empty? %b\n",empty);	// expect:false	 
 		numLetters = 1;
-		for (int i=0; i<99; i++) {
+		for ( int i = 0; i < 99; i++ )
+		{
 			drawnLetters = pool.drawTiles(numLetters);
 			System.out.print(drawnLetters);
 		}
@@ -76,11 +79,11 @@ public class PlayerTest {
 		System.out.printf("Is empty? %b\n",empty);   // expect: false
 		System.out.println(pool.size());			 // expect: 93
 		drawnLetters = frame.getTiles();
-		available = frame.isAvailable(drawnLetters.substring(0,6));
+		available = frame.isAvailable(drawnLetters.substring(0, 6));
 		System.out.println(available);               // expect: true
 		available = frame.isAvailable("x");
 		System.out.println(available);               // expect: false
-		frame.remove(drawnLetters.substring(0,3));
+		frame.remove(drawnLetters.substring(0, 3));
 		System.out.println(frame);                   // expect: 4 left
 		frame = player2.getFrame();
 		frame.refill(pool);

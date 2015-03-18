@@ -32,7 +32,7 @@ public class Pool
 		}
 	}
 
-	public int size()
+	public int size ()
 	{
 		return pool.length();
 	}

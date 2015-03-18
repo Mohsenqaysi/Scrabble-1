@@ -12,20 +12,10 @@ public class Frame
 	{
 		tiles.setLength(0);
 	}
-	
-	public int length()
-	{
-		return tiles.length();
-	}
-	
+
 	public boolean isEmpty()
 	{
 		return (tiles.length() == 0);
-	}
-	
-	public boolean isFull()
-	{
-		return (tiles.length() == MAX_TILES);
 	}
 	
 	public boolean isAvailable(String letters)
@@ -59,11 +49,6 @@ public class Frame
 		return found;
 	}
 	
-	public String getTiles()
-	{
-		return tiles.toString();
-	}
-	
 	public void remove(String letters)
 	{
 		// Precondition: isAvailable(letters) is true.
@@ -84,6 +69,11 @@ public class Frame
 		numTilesToDraw = MAX_TILES - tiles.length();
 		newTiles = pool.drawTiles(numTilesToDraw);
 		tiles = tiles.append(newTiles);
+	}
+	
+	public String getTiles ()
+	{
+		return tiles.toString();
 	}
 	
 	public String toString()
