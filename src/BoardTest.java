@@ -1,6 +1,5 @@
 /**
- * @author Mohsen Qaysi
- * Updated by Yongzhen Ren.
+ * @author Mohsen Qaysi & Yongzhen Ren.
  */
 
 import java.util.Scanner;
@@ -11,7 +10,7 @@ public class BoardTest
 	{
 		String postion, direction, ans;
 		Pool testPool = new Pool();
-		Frame testFrame = new Frame();
+		Player testPlayer = new Player();
 		Board testBoard = new Board();
 		Scanner testInput = new Scanner(System.in);
 
@@ -22,15 +21,15 @@ public class BoardTest
 		while ( !testPool.isEmpty() )
 		{
 			System.out.println("The size of the pool: " + testPool.size());
-			testFrame.refill(testPool);
-			System.out.println("Frame: " + testFrame);
+			testPlayer.getFrame().refill(testPool);
+			System.out.println("Frame: " + testPlayer.getFrame());
 			// Input the position and direction from the keyboard.
 			System.out.printf("Input the position in such format <Letter><Number>: ");
 			// Since there is NO input checking, be careful with input.
 			postion = testInput.next();
 			System.out.printf("Give the direction\nA/a - horizontally\tD/d - vertically\n");
 			direction = testInput.next();
-			testBoard.putNewWord(postion, direction, testInput.next(), testFrame);
+			testBoard.putNewWord(postion, direction, testInput.next(), testPlayer);
 			System.out.println(testBoard);
 
 			System.out.printf("Do you want to keep playing: [Y/N]: ");
@@ -54,7 +53,7 @@ public class BoardTest
 			}
 		}
 		System.out.println("The size of the pool: " + testPool.size());
-		System.out.println("Letters left in the Frame: " + testFrame);
+		System.out.println("Letters left in the Frame: " + testPlayer.getFrame());
 		testInput.close();
 	}
 }

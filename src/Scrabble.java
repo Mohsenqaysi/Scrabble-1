@@ -1,186 +1,137 @@
-/*
-Author: Dylan Dowling & Pranav Kashyap
-*/
+/**
+ * @author: Yongzhen Ren
+ */
 import java.util.Scanner;
 
-public class Scrabble {
-	
-	public static int player1Score;
-	public static int player2Score;
-	public static Pool pool = new Pool();
-	public static Board board = new Board();
+public class Scrabble
+{
+	static Pool pool; ///////////////////////////////////////////////////////// NEED TO BE FIXED LATER!!!
+	private static Board board;
+	private static UI ui;
+	private static Scanner userInput;
+	private static Player player1;
+	private static Player player2;
+	private static final String defaultName1 = "Player1";
+	private static final String defaultName2 = "Player2";
 
-	public static void main(String[] args) {
+	Scrabble()
+	// Initialisation.
+	{
+		pool = new Pool();
+		board = new Board();
+		ui = new UI();
+		userInput = new Scanner(System.in);
+		player1 = new Player();
+		player2 = new Player();
+		player1.getFrame().refill(pool);
+		player2.getFrame().refill(pool);
+	}
 
-		String numOfPlayers;
-		
-		Scanner input = new Scanner(System.in);
-		String postion = "", direction = "", ans = "";
-		
-		// playerTurnCount used for player ID purpose
-		int playerTurnCount=1;
-		int player1IncrementVariable=0;
-		int player2IncrementVariable=0;
-		
-		System.out.printf("\n1 player or 2 player game? [1 | 2]): ");
-		numOfPlayers = input.next();
-		
-		if (numOfPlayers.equalsIgnoreCase("1")){
-			
-			System.out.printf("\nPlayer 1 enter your name: ");
-			String player1Name = input.next();
-			Player player1 = new Player();
-			player1.setName(player1Name);
-			Frame player1Frame = player1.getFrame();
-			player1Frame.refill(pool);
-			
-			//int player1Score = 0;
-	
-			System.out.println("\n"+ board);
-			System.out.println("\nH8 = Center of the board.\n");
+	/**
+	 * The function sets names for both players.
+	 * 
+	 * N.B.: Two players can have the same name;
+	 *       if user inputs nothing for name prompt, the default name will be set.
+	 */
+	public void setName()
+	{
+		String buffer;
 
-			while (!pool.isEmpty()) {
-				
-				player1Frame.refill(pool);
-				System.out.println(player1Name +"'s Frame: " + player1Frame);
-				System.out.println("\nPool of size: " + pool.size());
-				
-				// Position
-				System.out.printf("Give start position and press enter (Ex: H8): ");
-				postion = input.next();
-				
-				// Direction
-				System.out.printf("Give direction, then press enter  (A = Horizontally   D = Vertically): ");
-				direction = input.next();
-				
-				// Enter new word
-				System.out.printf("Enter word or letter. Include letters from the board the complete your word: ");
-				board.putNewWord(postion.toUpperCase(), direction,input.next(), player1Frame, playerTurnCount);
-				
-				// Calculating the score
-				player1IncrementVariable = player1Score - player1IncrementVariable;
-				player1.addScore(player1IncrementVariable);
-				player1IncrementVariable = player1Score + player1IncrementVariable;
-				
-				System.out.println("\n"+ board);
-				System.out.println("\n"+ player1.getName() +"'s current score is: "+ player1.getScore());
-				
-				// Keep playing?
-				System.out.printf("\n"+ player1Name + " are you ready to continue?: [y/n]: ");
-				ans = input.next();
+		ui.promptName(defaultName1);
+		buffer = userInput.nextLine();
+		if ( buffer.compareTo("") == 0 )
+		{
+			player1.setName(defaultName1);
+		}
+		else
+		{
+			player1.setName(buffer);
+		}
+		ui.promptName(defaultName2);
+		buffer = userInput.nextLine();
+		if ( buffer.compareTo("") == 0 )
+		{
+			player2.setName(defaultName2);
+		}
+		else
+		{
+			player2.setName(buffer);
+		}
+	}
 
-				if (ans.equalsIgnoreCase("y")) {
-					playerTurnCount += 2;
-					continue;
-				} else if (ans.equalsIgnoreCase("n")) {
-					System.out.println("As you selected no, the game will now end. Thanks for playing.");		
+	public void eachTurnOfGame(Player player)
+	{
+		String command;
+		String[] arguments;
+		int returnState;
+		boolean finishOrNot = false;
+		// The variable checks if a specific action is finished correctly.
+		ui.displayGameBoard(player, board);
+		do
+		{
+			do
+			{
+				ui.promptCommand(player.getName());
+				command = userInput.nextLine();
+				// Trim newline character automatically.
+				returnState = ui.parseInput(command);
+			}
+			while ( returnState < 0 );
+			
+			switch ( returnState )
+			{
+				case 0: // "QUIT" option.
+					ui.displayQuit(player);
+					System.exit(0);
 					break;
-				} else {
-					System.out.println("Error unacceptable input, I'm ending the game, stop trying to break me :(");
+				case 1: // "PASS" option.
+					ui.displayPass(player);
+					finishOrNot = true;
 					break;
-				}
-			}//end of while
-			input.close();
-			
-		}else if (numOfPlayers.equalsIgnoreCase("2")){
-			
-			
-			
-			// Setting up player data
-			System.out.printf("\nPlayer 1 enter your name: ");
-			String player1Name = input.next();
-			Player player1 = new Player();
-			player1.setName(player1Name);
-			Frame player1Frame = player1.getFrame();
-			player1Frame.refill(pool);
-			//int player1Score=0;
-			
-			System.out.printf("\nPlayer 2 enter your name: ");
-			String player2Name = input.next();
-			Player player2 = new Player();
-			player1.setName(player2Name);
-			Frame player2Frame = player2.getFrame();
-			player2Frame.refill(pool);
-			//int player2Score=0;
-			
-			System.out.println("\n"+ board);
-			System.out.println("\nH8 = Center of the board.\n");
-			
-			while (!pool.isEmpty()) {	
-			
-				if(playerTurnCount%2 != 0){
-					System.out.printf(player1Name + "'s turn.\n\n");
-					player1Frame.refill(pool);
-					System.out.println(player1Name +"'s Frame: " + player1Frame);
-					System.out.println("\nPool size: " + pool.size());
-					
-					// Position
-					System.out.printf("Give start position and press enter (Ex: H8): ");
-					postion = input.next();
-					
-					// Direction
-					System.out.printf("Give direction, then press enter  (A = Horizontally   D = Vertically): ");
-					direction = input.next();
-					
-					// Enter new word
-					System.out.printf("Enter word or letter. Include letters from the board the complete your word: ");
-					board.putNewWord(postion.toUpperCase(), direction,input.next(), player1Frame, playerTurnCount);
-					
-					// Calculating the score
-					player1IncrementVariable = player1Score - player1IncrementVariable;
-					player1.addScore(player1IncrementVariable);
-					player1IncrementVariable = player1Score + player1IncrementVariable;
-					
-					System.out.println("\n"+ board);
-					System.out.println("\n"+ player1.getName() +"'s current score is: "+ player1.getScore());
-					
-					System.out.printf("\n"+ player2Name + " are you ready to continue?: [y/n]: ");
-					ans = input.next();
-					
-				}else{
-					System.out.printf(player2Name + "'s turn.\n\n");
-					player2Frame.refill(pool);
-					System.out.println(player2Name +"'s Frame: " + player2Frame);
-					System.out.println("\nPool size: " + pool.size());
-					
-					// Position
-					System.out.printf("Give start position and press enter (Ex: H8): ");
-					postion = input.next();
-					
-					// Direction
-					System.out.printf("Give direction, then press enter  (A = Horizontally   D = Vertically): ");
-					direction = input.next();
-					
-					// Enter new word
-					System.out.printf("Enter word or letter. Include letters from the board the complete your word: ");
-					board.putNewWord(postion.toUpperCase(), direction,input.next(), player2Frame, playerTurnCount);
-					
-					// Calculating the score
-					player2IncrementVariable = player2Score - player2IncrementVariable;
-					player2.addScore(player2IncrementVariable);
-					player2IncrementVariable = player2Score + player2IncrementVariable;
-					
-					System.out.println("\n"+ board);
-					System.out.println("\n"+ player2.getName() +"'s current score is: "+ player2.getScore());
-					
-					// Keep playing?
-					System.out.printf("\n"+ player1Name + " are you ready to continue?: [y/n]: ");
-					ans = input.next();
-				}
-			
-				
-				if (ans.equalsIgnoreCase("y")) {
-					playerTurnCount++;
-					continue;
-				} else if (ans.equalsIgnoreCase("n")) {
-					System.out.println("As you selected no, the game will now end. Thanks for playing.");		
+				case 2: // "EXCHANGE" option.
+					arguments = command.split("\\s");
+					if ( player.getFrame().isAvailable(arguments[1]) )
+					{
+						player.getFrame().remove(arguments[1]);
+						player.getFrame().refill(pool);
+						finishOrNot = true;
+					}
+					else
+					{
+						ui.displayExchangeError();
+					}
 					break;
-				} else {
-					System.out.println("Error unacceptable input, I'm ending the gam, stop trying to break me :(");
+				case 3: // Place tiles.
+					arguments = command.split("\\s");
+					if ( board.putNewWord(arguments[0], arguments[1], arguments[2], player) )
+					{
+						player.getFrame().refill(pool);
+						finishOrNot = true;
+					}
+					else
+					{
+						ui.displayPlacementError();
+					}
 					break;
-				}
-			}//end of while
-			input.close();	
-		}	
+				default: // Unexpected error.
+					ui.displayUnexpectedError();
+					break;
+			}
+		}
+		while ( !finishOrNot );
+	}
+
+	public static void main(String[] args)
+	{
+		Scrabble scrabble = new Scrabble();
+		scrabble.setName();
+		
+		while ( !pool.isEmpty() )
+		{
+			scrabble.eachTurnOfGame(player1);
+			scrabble.eachTurnOfGame(player2);
+		}
+		ui.displayFinalScores(player1, player2);
+		userInput.close();
 	}
 }

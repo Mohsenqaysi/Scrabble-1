@@ -7,11 +7,6 @@ public class Frame
 	{
 		reset();
 	}
-
-	Frame(Frame originalFrame)
-	{
-		this.tiles = originalFrame.tiles;
-	}
 	
 	public void reset()
 	{
@@ -20,17 +15,17 @@ public class Frame
 	
 	public int length()
 	{
-		return(tiles.length());
+		return tiles.length();
 	}
 	
 	public boolean isEmpty()
 	{
-		return(tiles.length() == 0);
+		return (tiles.length() == 0);
 	}
 	
 	public boolean isFull()
 	{
-		return(tiles.length() == MAX_TILES);
+		return (tiles.length() == MAX_TILES);
 	}
 	
 	public boolean isAvailable(String letters)
@@ -39,6 +34,8 @@ public class Frame
 		int index;
 		StringBuffer copyTiles = new StringBuffer(tiles);
 		
+		letters = letters.toUpperCase();
+		// Make all letters upper case.
 		if ( letters.length() > tiles.length() )
 		{
 			found = false;
@@ -46,7 +43,7 @@ public class Frame
 		else
 		{
 			found = true;
-			for ( int i = 0; (i < letters.length()) && found; i++ )
+			for ( int i = 0; i < letters.length() && found; i++ )
 			{
 				index = copyTiles.indexOf(Character.toString(letters.charAt(i)));
 				if ( index == -1 )
@@ -59,19 +56,21 @@ public class Frame
 				}
 			}
 		}
-		return(found);
+		return found;
 	}
 	
 	public String getTiles()
 	{
-		return(tiles.toString());
+		return tiles.toString();
 	}
 	
 	public void remove(String letters)
 	{
 		// Precondition: isAvailable(letters) is true.
-		int index;		
-		for ( int i = 0; (i < letters.length()); i++ )
+		int index;
+		letters = letters.toUpperCase();
+		// Make all letters upper case.
+		for ( int i = 0; i < letters.length(); i++ )
 		{
 			index = tiles.indexOf(Character.toString(letters.charAt(i)));
 			tiles.deleteCharAt(index);
@@ -89,6 +88,6 @@ public class Frame
 	
 	public String toString()
 	{
-		return(tiles.toString());
+		return tiles.toString();
 	}
 }

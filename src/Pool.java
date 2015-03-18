@@ -4,7 +4,7 @@ public class Pool
 	private static final int[] VALUE_TILES = {0,1,3,3,2,1,4,2,4,1,8,5,1,3,1,1,3,10,1,1,1,1,4,4,8,4,10}; 
 	private static final int[] TILE_DISTRIBUTION = {2,9,2,2,4,12,2,3,2,9,1,1,4,2,6,8,2,1,6,4,6,4,2,2,1,2,1};
 	private static final int TILE_DISTRIBUTION_LENGTH = 27;
-	// First character ('@') is the blank tile, second character is 'A'.
+	// First character ('@') is the blank tile, second character is 'A' and so forth.
 	
 	private StringBuilder pool = new StringBuilder();
 	
@@ -34,19 +34,19 @@ public class Pool
 
 	public int size()
 	{
-		return(pool.length());
+		return pool.length();
 	}
 	
 	public boolean isEmpty()
 	{	
-		return(pool.length() == 0);
+		return (pool.length() == 0);
 	}
 
 	public int getValue(char letter)
 	{
 		// Precondition: letter must be upper-case letter or @.
-		return(VALUE_TILES[letter - BLANK]);
-	}		
+		return VALUE_TILES[letter - BLANK];
+	}
 
 	public String drawTiles(int numRequested)
 	{
@@ -72,6 +72,11 @@ public class Pool
 			draw = draw + pool.charAt(index);
 			pool = pool.deleteCharAt(index);
 		}
-		return(draw);
+		return draw;
+	}
+	
+	public String toString()
+	{
+		return pool.toString();
 	}
 }
