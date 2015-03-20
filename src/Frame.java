@@ -12,37 +12,25 @@ public class Frame
 	{
 		tiles.setLength(0);
 	}
-	
-	public int length()
-	{
-		return tiles.length();
-	}
-	
+
 	public boolean isEmpty()
 	{
 		return (tiles.length() == 0);
 	}
 	
-	public boolean isFull()
-	{
-		return (tiles.length() == MAX_TILES);
-	}
-	
 	public boolean isAvailable(String letters)
 	{
-		boolean found;
+		// Precondition: letters must be upper-case letter or @.
+		boolean found = true;
 		int index;
 		StringBuffer copyTiles = new StringBuffer(tiles);
-		
-		letters = letters.toUpperCase();
-		// Make all letters upper case.
+
 		if ( letters.length() > tiles.length() )
 		{
 			found = false;
 		}
 		else
 		{
-			found = true;
 			for ( int i = 0; i < letters.length() && found; i++ )
 			{
 				index = copyTiles.indexOf(Character.toString(letters.charAt(i)));
@@ -59,14 +47,9 @@ public class Frame
 		return found;
 	}
 	
-	public String getTiles()
+	public String remove(String letters)
 	{
-		return tiles.toString();
-	}
-	
-	public void remove(String letters)
-	{
-		// Precondition: isAvailable(letters) is true.
+		// Precondition: isAvailable(letters) is true and letters must be upper-case letter or @.
 		int index;
 		letters = letters.toUpperCase();
 		// Make all letters upper case.
@@ -75,15 +58,22 @@ public class Frame
 			index = tiles.indexOf(Character.toString(letters.charAt(i)));
 			tiles.deleteCharAt(index);
 		}
+		return letters;
 	}
-
+	
+	public void exchange(Pool pool, String letters)
+	{
+		pool.putBackToPool(remove(letters));
+		refill(pool);
+	}
+	
 	public void refill(Pool pool)
 	{
 		int numTilesToDraw;
 		String newTiles;
 		numTilesToDraw = MAX_TILES - tiles.length();
 		newTiles = pool.drawTiles(numTilesToDraw);
-		tiles = tiles.append(newTiles);
+		tiles.append(newTiles);
 	}
 	
 	public String toString()

@@ -20,7 +20,6 @@ public class BoardTest
 		// Keep looping until the pool is empty or user inputs "Y" after one turn.
 		while ( !testPool.isEmpty() )
 		{
-			System.out.println("The size of the pool: " + testPool.size());
 			testPlayer.getFrame().refill(testPool);
 			System.out.println("Frame: " + testPlayer.getFrame());
 			// Input the position and direction from the keyboard.
@@ -52,7 +51,6 @@ public class BoardTest
 				}
 			}
 		}
-		System.out.println("The size of the pool: " + testPool.size());
 		System.out.println("Letters left in the Frame: " + testPlayer.getFrame());
 		testInput.close();
 	}

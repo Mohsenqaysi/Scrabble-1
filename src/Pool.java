@@ -7,6 +7,7 @@ public class Pool
 	// First character ('@') is the blank tile, second character is 'A' and so forth.
 	
 	private StringBuilder pool = new StringBuilder();
+	// StringBuilder is mutable.
 	
 	Pool()
 	{
@@ -22,19 +23,20 @@ public class Pool
 		letter = BLANK;
 		for ( int i = 0; i < TILE_DISTRIBUTION_LENGTH; i++ )
 		{
-			tiles= ""; // tiles here seems to be a input buffer.
+			tiles = ""; // tiles here acts as a input buffer.
 			for ( int j = 0; j < TILE_DISTRIBUTION[i]; j++ )
 			{
 				tiles = tiles + letter;
 			}
-			pool = pool.append(tiles); // Flush to pool.
+			pool.append(tiles); // Flush to pool.
 			letter++;
 		}
 	}
-
-	public int size()
+	
+	// The function is used in EXCHANGE command.
+	public void putBackToPool(String letters)
 	{
-		return pool.length();
+		pool.append(letters);
 	}
 	
 	public boolean isEmpty()
@@ -42,7 +44,7 @@ public class Pool
 		return (pool.length() == 0);
 	}
 
-	public int getValue(char letter)
+	public static int getValue(char letter)
 	{
 		// Precondition: letter must be upper-case letter or @.
 		return VALUE_TILES[letter - BLANK];
@@ -51,7 +53,7 @@ public class Pool
 	public String drawTiles(int numRequested)
 	{
 		int index, numGiven;
-		String draw;
+		String draw = "";
 		
 		if ( numRequested > pool.length() )
 		{
@@ -61,7 +63,6 @@ public class Pool
 		{
 			numGiven = numRequested;
 		}
-		draw = "";
 		for ( int i = 0; i < numGiven; i++ )
 		{
 			index = (int) (Math.random() * pool.length());
@@ -70,7 +71,7 @@ public class Pool
 			 * greater than or equal to 0.0 and less than 1.0.
 			 */
 			draw = draw + pool.charAt(index);
-			pool = pool.deleteCharAt(index);
+			pool.deleteCharAt(index);
 		}
 		return draw;
 	}

@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Scrabble
 {
-	static Pool pool; ///////////////////////////////////////////////////////// NEED TO BE FIXED LATER!!!
+	private static Pool pool;
 	private static Board board;
 	private static UI ui;
 	private static Scanner userInput;
@@ -13,6 +13,7 @@ public class Scrabble
 	private static Player player2;
 	private static final String defaultName1 = "Player1";
 	private static final String defaultName2 = "Player2";
+	private static final int consecutiveZeroScores = 6;
 
 	Scrabble()
 	// Initialisation.
@@ -59,13 +60,18 @@ public class Scrabble
 		}
 	}
 
-	public void eachTurnOfGame(Player player)
+	/**
+	 * The function stimulates each turn of the game.
+	 * @param player is an object containing information about a specific player.
+	 * @return pass: if a pass occurs in this turn.
+	 */
+	public boolean eachTurnOfGame(Player player)
 	{
 		String command;
 		String[] arguments;
 		int returnState;
-		boolean finishOrNot = false;
-		// The variable checks if a specific action is finished correctly.
+		boolean finishOrNot = false, passOrNot = false;
+		// finishOrNot checks if a specific action is finished correctly.
 		ui.displayGameBoard(player, board);
 		do
 		{
@@ -87,13 +93,15 @@ public class Scrabble
 				case 1: // "PASS" option.
 					ui.displayPass(player);
 					finishOrNot = true;
+					passOrNot = true;
 					break;
 				case 2: // "EXCHANGE" option.
 					arguments = command.split("\\s");
+					arguments[1] = arguments[1].toUpperCase();
+					// Make the string upper-case.
 					if ( player.getFrame().isAvailable(arguments[1]) )
 					{
-						player.getFrame().remove(arguments[1]);
-						player.getFrame().refill(pool);
+						player.getFrame().exchange(pool, arguments[1]);
 						finishOrNot = true;
 					}
 					else
@@ -113,24 +121,79 @@ public class Scrabble
 						ui.displayPlacementError();
 					}
 					break;
-				default: // Unexpected error.
+				default: // Unexpected error, usually unreachable.
 					ui.displayUnexpectedError();
 					break;
 			}
 		}
 		while ( !finishOrNot );
+		return passOrNot;
+	}
+	
+	// The function is to check if all elements in array are true.
+	private static boolean ifSixZeros(boolean[] array)
+	{
+		for ( int i = 0; i < consecutiveZeroScores; i++ )
+		{
+			if ( array[i] == false )
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static void main(String[] args)
 	{
+		boolean[] pass = new boolean[consecutiveZeroScores];
+		/*
+		 *  The default value for the elements in a boolean[] is false.
+		 *  The variable is to use check if there is a consecutive-scores-of-zero in recent 6 turns.
+		 */
+		int turns = 0;
 		Scrabble scrabble = new Scrabble();
 		scrabble.setName();
 		
-		while ( !pool.isEmpty() )
+		/*
+		 * In theory, the game will end normally simply because one of racks is empty
+		 * or after six consecutive scores of zero (i.e. three consecutive passes or false-words per player).
+		 * The rule is from: http://www.word-buff.com/when-does-a-scrabble-game-end.html
+		 */
+		do
 		{
-			scrabble.eachTurnOfGame(player1);
-			scrabble.eachTurnOfGame(player2);
+			if ( scrabble.eachTurnOfGame(player1) )
+			// If a pass does occur in the last turn.
+			{
+				pass[turns % consecutiveZeroScores] = true;
+			}
+			turns++;
+			if ( pool.isEmpty() )
+			// When pool is empty, the game will not end until one of racks becomes empty too.
+			{
+				ui.displayPoolIsEmptyWarning();
+			}
+			if ( player1.getFrame().isEmpty() || ifSixZeros(pass) )
+			// Check the state of the pool right after each turn.
+			{
+				break;
+			}
+			if ( scrabble.eachTurnOfGame(player2) )
+			{
+				pass[turns % consecutiveZeroScores] = true;
+			}
+			turns++;
+			if ( pool.isEmpty() )
+			// When pool is empty, the game will not end until one of racks becomes empty too.
+			{
+				ui.displayPoolIsEmptyWarning();
+			}
+			if ( player2.getFrame().isEmpty() || ifSixZeros(pass) )
+			// Check the state of the pool right after each turn.
+			{
+				break;
+			}
 		}
+		while ( true );
 		ui.displayFinalScores(player1, player2);
 		userInput.close();
 	}
