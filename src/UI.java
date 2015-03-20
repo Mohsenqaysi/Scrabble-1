@@ -79,18 +79,22 @@ public class UI
 	
 	private void displayHelpInfo()
 	{
-		String helpInfo = "<Grid Ref> <Across / Down> <Word> (Put a new word on the board)\n"
-						+ "    Grid Ref: the position for the first letter in <word>,\n"
-						+ "              whose format is [Letter (A - O)][Number (1 - 15)],\n"
-						+ "    Across / Down: the direction of word placement\n"
-						+ "                   whose possible input is [A / D]\n"
-						+ "    Word: the word (length 1 - 15) to be placed.\n"
-						+ "    For example, \"A1 A HELLO\".\n"
-						+ "EXCHANGE <A Sequence of Letters>\n    Exchange these letters from the frame with random letters from the pool.\n"
-						+ "PASS\n    Pass current move.\n"
-						+ "HELP\n    Display help information (the one that you are reading now >.<').\n"
-						+ "QUIT\n    Quit the game immediately.\n"
-						+ "N.B.: all input here is case-insensitive.\n";
+		String helpInfo = "==================================== HELP ====================================\n"
+						+ "<Grid Ref> <Across / Down> <Word>\n"
+						+ "      Put a new word on the board\n"
+						+ "      <Grid Ref>: the position for the first letter in <Word>,\n"
+						+ "                  whose format is [Letter (A - O)][Number (1 - 15)].\n"
+						+ "      <Across / Down>: the direction of word placement\n"
+						+ "                       whose possible input is [A / D].\n"
+						+ "      <Word>: the word (length 1 - 15) to be placed.\n"
+						+ "      For example, \"A1 A HELLO\".\n"
+						+ "EXCHANGE <A Sequence of Letters>\n"
+						+ "      Exchange these letters from the frame with random letters from the pool.\n"
+						+ "PASS\n      Pass current move.\n"
+						+ "HELP\n      Display help information (the one that you are reading now >.<').\n"
+						+ "QUIT\n      Quit the game immediately.\n"
+						+ "N.B.: all input here is case-insensitive.\n"
+						+ "==================================== HELP ====================================";
 		System.out.println(helpInfo);
 	}
 
